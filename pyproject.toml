@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "bot-form"
+version = "0.1.0"
+description = ""
+authors = ["gmoroz <12345hasek@gmail.com>"]
+readme = "README.md"
+packages = [{include = "bot_form"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^2.25.1"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.0.1"
+pre-commit = "^3.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
