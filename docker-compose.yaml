@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  bot:
+    build: .
+    env_file:
+      .env.docker
+    command: python main.py
+    volumes:
+    - images:/code/images
+    depends_on:
+      - redis
+      - db
+      - celery
+  redis:
+    image: redis:latest
+    env_file:
+      .env.docker
+  db:
+    image: postgres:latest
+    env_file:
+      .env.docker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  celery:
+    build: .
+    env_file:
+      .env.docker
+    volumes:
+    - images:/code/images
+    command: celery -A bot.celery_config worker -B --loglevel=info
+    depends_on:
+      - redis
+      - db
+volumes:
+  postgres_data:
+  images:
