@@ -8,5 +8,5 @@ app = Celery(
 
 
 @app.task
-def form_write_task(data: dict[str, str | int]):
-    form_write(data)
+def form_write_task(data: dict[str, str | int]) -> str:
+    return form_write(data)

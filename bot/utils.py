@@ -93,7 +93,6 @@ def form_write(data: dict[str, str | int]) -> str:
         os.path.join(settings.PATH_FOR_SCREENSHOTS, f"{timestamp}_{user_id}.png")
     )
 
-    input("Нажмите Enter для выхода...")
     # закрываем браузер
     driver.quit()
 
