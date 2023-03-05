@@ -18,7 +18,7 @@ def form_write(data: dict[str, str | int]) -> str:
     wait = WebDriverWait(driver, 5)
 
     # открываем страницу с формой
-    driver.get("https://b24-iu5stq.bitrix24.site/backend_test/")
+    driver.get(settings.FORM_URL)
 
     # Были проблемы с вводом из-за кириллицы, поэтому использую ActionChains
     # кликаем на поле ввода
