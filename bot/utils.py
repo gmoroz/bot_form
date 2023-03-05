@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -97,3 +98,14 @@ def form_write(data: dict[str, str | int]) -> str:
     driver.quit()
 
     return file_path
+
+
+# Регулярки для e-mail, телефона, имени и фамилии
+email_pattern = r"^[a-zA-Z0-9_.-]+@[a-zA-Z0-9]+\.[a-z]{2,3}$"
+phone_pattern = r"^\+?\d{1,3}\s?(\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}$"
+name_pattern = r"^[a-zA-Zа-яА-Я]+$"
+
+
+email_regex = re.compile(email_pattern)
+phone_regex = re.compile(phone_pattern)
+name_regex = re.compile(name_pattern)
