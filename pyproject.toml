@@ -15,6 +15,7 @@ asyncpg = "^0.27.0"
 selenium = "^4.8.2"
 celery = "^5.2.7"
 redis = "^4.5.1"
+chromedriver-binary = "^111.0.5563.41.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.0.1"
