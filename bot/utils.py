@@ -85,15 +85,15 @@ def form_write(data: dict[str, str | int]) -> str:
     # получаем текущую дату и время
     now = datetime.datetime.now()
     # форматируем дату и время в нужный формат
-    timestamp = now.strftime("%Y-%m-%d_%H:%M")
+    timestamp = now.strftime("%Y-%m-%d_%H-%M")
     user_id = data.get("user_id")
-    filename = f"{timestamp}_{user_id}.png"
 
-    driver.save_screenshot(
-        os.path.join(settings.PATH_FOR_SCREENSHOTS, f"{timestamp}_{user_id}.png")
-    )
+    # заменяем ":", потому что иначе не читается файл
+    filename = f"{timestamp}_{user_id}.png"
+    file_path = os.path.join(settings.PATH_FOR_SCREENSHOTS, filename)
+    driver.save_screenshot(file_path)
 
     # закрываем браузер
     driver.quit()
 
-    return filename
+    return file_path
