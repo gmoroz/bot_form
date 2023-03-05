@@ -15,3 +15,10 @@ DB_URI = "postgresql+asyncpg://{}:{}@{}/{}".format(
     POSTGRES_SERVER,
     POSTGRES_DB,
 )
+
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_PORT = os.getenv("REDIS_PORT")
+CELERY_BROKER_URL = "redis://{}:{}/0".format(REDIS_HOST, REDIS_PORT)
+PATH_FOR_SCREENSHOTS = "/images/"
