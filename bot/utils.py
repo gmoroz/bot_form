@@ -2,6 +2,7 @@ import datetime
 import os
 import re
 import time
+from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -15,7 +16,10 @@ def form_write(data: dict[str, str | int]) -> str:
     birthdate = data.get("birthdate")
     year, month, day = birthdate.split("-")  # type: ignore
     # создаем экземпляр браузера
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(options=chrome_options)
     wait = WebDriverWait(driver, 5)
 
     # открываем страницу с формой
