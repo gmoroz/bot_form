@@ -1,18 +1,18 @@
 import datetime
+import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from bot import settings
-from bot.celery_config import app
+import settings
+from selenium.webdriver.common.action_chains import ActionChains
 
 
-@app.task
-def form_write(data: dict[str, str]) -> str:
+def form_write(data: dict[str, str | int]) -> str:
     birthdate = data.get("birthdate")
-    year, month, _ = birthdate.split("-")  # type: ignore
+    year, month, day = birthdate.split("-")  # type: ignore
     # создаем экземпляр браузера
     driver = webdriver.Chrome()
     wait = WebDriverWait(driver, 5)
@@ -20,11 +20,20 @@ def form_write(data: dict[str, str]) -> str:
     # открываем страницу с формой
     driver.get("https://b24-iu5stq.bitrix24.site/backend_test/")
 
-    # заполняем первые имя фамилию
-    driver.find_element(By.NAME, "name").send_keys(data.get("name"))
-    driver.find_element(By.NAME, "lastname").send_keys(data.get("last_name"))
+    # Были проблемы с вводом из-за кириллицы, поэтому использую ActionChains
+    # кликаем на поле ввода
+    input_field = wait.until(EC.presence_of_element_located((By.NAME, "name")))
+    ActionChains(driver).click(input_field).perform()
+    # заполняем имя
+    ActionChains(driver).send_keys(data.get("name")).perform()
 
-    # # переходим к следующим полям
+    # переходим к фамилии
+    input_field = wait.until(EC.presence_of_element_located((By.NAME, "lastname")))
+    ActionChains(driver).click(input_field).perform()
+    # заполняем фамилию
+    ActionChains(driver).send_keys(data.get("last_name")).perform()
+
+    # переходим к следующим полям
     next_button = driver.find_element(By.CLASS_NAME, "b24-form-btn")
     next_button.click()
 
@@ -32,7 +41,6 @@ def form_write(data: dict[str, str]) -> str:
     email_element = wait.until(EC.presence_of_element_located((By.NAME, "email")))
     email_element.send_keys(data.get("email"))
     driver.find_element(By.NAME, "phone").send_keys(data.get("phone"))
-
     # переходим к следующим полям
     next_button.click()
 
@@ -51,9 +59,16 @@ def form_write(data: dict[str, str]) -> str:
     select.select_by_value(str(int(month) - 1))  # Выбираем месяц
     select = Select(dropdown_elems[1])
     select.select_by_value(year)  # Выбираем год
+
+    # В data-id не используются ведущие нули для месяца и дня
+    if int(month) < 10 or int(day) < 10:
+        month = month[1] if int(month) < 10 else month
+        day = day[1] if int(day) < 10 else day
+        birthdate = "-".join((year, month, day))
+
     day_select = driver.find_element(
         By.CSS_SELECTOR,
-        "td[data-id='{}']".format(data.get("birthdate")),  # Выбираем день
+        "td[data-id='{}']".format(birthdate),  # Выбираем день
     )
     day_select.click()
 
@@ -65,7 +80,7 @@ def form_write(data: dict[str, str]) -> str:
 
     # Ждем пока кнопка пропадет
     while send_button.get_attribute("background-color") == "#0f58d0":
-        pass
+        print(1)
     time.sleep(2)  # слип, чтобы страница прогрузилась
     # получаем текущую дату и время
     now = datetime.datetime.now()
@@ -73,7 +88,10 @@ def form_write(data: dict[str, str]) -> str:
     timestamp = now.strftime("%Y-%m-%d_%H:%M")
     user_id = data.get("user_id")
     filename = f"{timestamp}_{user_id}.png"
-    driver.save_screenshot(settings.PATH_FOR_SCREENSHOTS + f"{timestamp}_{user_id}.png")
+
+    driver.save_screenshot(
+        os.path.join(settings.PATH_FOR_SCREENSHOTS, f"{timestamp}_{user_id}.png")
+    )
 
     input("Нажмите Enter для выхода...")
     # закрываем браузер
